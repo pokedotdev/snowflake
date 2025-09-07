@@ -4,7 +4,7 @@ import { SnowflakeGenerator } from "../src/index";
 describe("Performance Tests", () => {
 	test("should generate 10,000 unique IDs quickly", () => {
 		const generator = new SnowflakeGenerator({ workerId: 1 });
-		const ids = new Set<string>();
+		const ids = new Set<bigint>();
 
 		const startTime = performance.now();
 
@@ -26,10 +26,10 @@ describe("Performance Tests", () => {
 
 	test("should handle concurrent generation", async () => {
 		const generator = new SnowflakeGenerator({ workerId: 1 });
-		const allIds = new Set<string>();
+		const allIds = new Set<bigint>();
 
 		const generateBatch = (count: number) => {
-			const ids: string[] = [];
+			const ids: bigint[] = [];
 			for (let i = 0; i < count; i++) {
 				ids.push(generator.generate());
 			}
@@ -74,7 +74,7 @@ describe("Performance Tests", () => {
 			},
 		});
 
-		const ids = new Set<string>();
+		const ids = new Set<bigint>();
 		const startTime = performance.now();
 
 		// Generate more IDs than sequence allows, forcing waits
@@ -95,7 +95,7 @@ describe("Performance Tests", () => {
 		const generator = new SnowflakeGenerator({ workerId: 1 });
 
 		// Generate test IDs
-		const testIds: string[] = [];
+		const testIds: bigint[] = [];
 		for (let i = 0; i < 1000; i++) {
 			testIds.push(generator.generate());
 		}
@@ -124,7 +124,7 @@ describe("Performance Tests", () => {
 		const startTime = performance.now();
 
 		// Compose many IDs
-		const ids: string[] = [];
+		const ids: bigint[] = [];
 		for (let i = 0; i < 1000; i++) {
 			ids.push(generator.compose(baseTimestamp + i, 1, 0, i % 4096));
 		}
@@ -143,7 +143,7 @@ describe("Performance Tests", () => {
 
 	test("should maintain uniqueness under extreme load", () => {
 		const generator = new SnowflakeGenerator({ workerId: 1 });
-		const ids = new Set<string>();
+		const ids = new Set<bigint>();
 
 		const startTime = performance.now();
 
@@ -168,7 +168,7 @@ describe("Performance Tests", () => {
 			(_, i) => new SnowflakeGenerator({ workerId: i }),
 		);
 
-		const allIds = new Set<string>();
+		const allIds = new Set<bigint>();
 		const startTime = performance.now();
 
 		// Generate IDs from all generators

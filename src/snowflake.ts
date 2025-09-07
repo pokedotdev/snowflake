@@ -26,7 +26,7 @@ import {
  *   bits: { workerId: 10, processId: 0, sequence: 12 }
  * });
  * const id = generator.generate();
- * console.log(id); // "1234567890123456789"
+ * console.log(id); // 1234567890123456789n
  * ```
  */
 export class SnowflakeGenerator {
@@ -162,17 +162,17 @@ export class SnowflakeGenerator {
 	/**
 	 * Generate a new unique Snowflake ID
 	 *
-	 * @returns A unique ID as a string
+	 * @returns A unique ID as a bigint
 	 * @throws {ClockBackwardsError} When system clock goes backwards
 	 * @throws {TimestampExhaustedError} When maximum timestamp is reached
 	 *
 	 * @example
 	 * ```typescript
 	 * const id = generator.generate();
-	 * console.log(id); // "1234567890123456789"
+	 * console.log(id); // 1234567890123456789n
 	 * ```
 	 */
-	generate(): string {
+	generate(): bigint {
 		let timestamp = this.getCurrentTimestamp();
 
 		// Handle clock going backwards
@@ -216,13 +216,13 @@ export class SnowflakeGenerator {
 	 * @param workerId Worker ID
 	 * @param processId Process ID
 	 * @param sequence Sequence number
-	 * @returns Composed ID as a string
+	 * @returns Composed ID as a bigint
 	 * @throws {ConfigurationError} When components exceed their bit limits
 	 *
 	 * @example
 	 * ```typescript
 	 * const id = generator.compose(1640995200000, 1, 0, 42);
-	 * console.log(id); // "1234567890123456789"
+	 * console.log(id); // 1234567890123456789n
 	 * ```
 	 */
 	compose(
@@ -230,7 +230,7 @@ export class SnowflakeGenerator {
 		workerId: number,
 		processId: number,
 		sequence: number,
-	): string {
+	): bigint {
 		// Validate inputs
 		if (timestamp < 0) {
 			throw new ConfigurationError("Timestamp cannot be negative");
@@ -268,7 +268,7 @@ export class SnowflakeGenerator {
 	 *
 	 * @example
 	 * ```typescript
-	 * const components = generator.decompose("1234567890123456789");
+	 * const components = generator.decompose(1234567890123456789n);
 	 * console.log(components);
 	 * // {
 	 * //   timestamp: 1640995200000,
@@ -278,35 +278,25 @@ export class SnowflakeGenerator {
 	 * // }
 	 * ```
 	 */
-	decompose(id: string): SnowflakeComponents {
+	decompose(id: bigint): SnowflakeComponents {
 		// Validate input
-		if (typeof id !== "string" || id.length === 0) {
-			throw new InvalidIdError("ID must be a non-empty string");
+		if (typeof id !== "bigint") {
+			throw new InvalidIdError("ID must be a bigint");
 		}
 
-		// Parse as BigInt to handle 64-bit integers
-		let bigIntId: bigint;
-		try {
-			bigIntId = BigInt(id);
-		} catch {
-			throw new InvalidIdError("ID must be a valid number string");
-		}
-
-		if (bigIntId < 0) {
+		if (id < 0n) {
 			throw new InvalidIdError("ID cannot be negative");
 		}
 
 		// Extract components using bit operations
-		const sequence = Number(bigIntId & BigInt(this.maxSequence));
+		const sequence = Number(id & BigInt(this.maxSequence));
 		const workerId = Number(
-			(bigIntId >> BigInt(this.workerShift)) & BigInt(this.maxWorker),
+			(id >> BigInt(this.workerShift)) & BigInt(this.maxWorker),
 		);
 		const processId = Number(
-			(bigIntId >> BigInt(this.processShift)) & BigInt(this.maxProcess),
+			(id >> BigInt(this.processShift)) & BigInt(this.maxProcess),
 		);
-		const adjustedTimestamp = Number(
-			bigIntId >> BigInt(this.timestampShift),
-		);
+		const adjustedTimestamp = Number(id >> BigInt(this.timestampShift));
 
 		return {
 			timestamp: adjustedTimestamp + this.config.epoch,
@@ -342,7 +332,7 @@ export class SnowflakeGenerator {
 		workerId: number,
 		processId: number,
 		sequence: number,
-	): string {
+	): bigint {
 		// Use BigInt for 64-bit operations
 		const timestampBits = BigInt(timestamp) << BigInt(this.timestampShift);
 		const processIdBits = BigInt(processId) << BigInt(this.processShift);
@@ -350,6 +340,6 @@ export class SnowflakeGenerator {
 		const sequenceBits = BigInt(sequence);
 
 		const id = timestampBits | processIdBits | workerIdBits | sequenceBits;
-		return id.toString();
+		return id;
 	}
 }

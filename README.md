@@ -26,8 +26,8 @@ import { SnowflakeGenerator } from '@pokedotdev/snowflake';
 const generator = new SnowflakeGenerator({ workerId: 1 });
 
 // Generate unique IDs
-const id1 = generator.generate(); // "1234567890123456789"
-const id2 = generator.generate(); // "1234567890123456790"
+const id1 = generator.generate(); // 1234567890123456789n
+const id2 = generator.generate(); // 1234567890123456790n
 
 // IDs are naturally sortable by generation time
 console.log(id1 < id2); // true
@@ -80,16 +80,16 @@ new SnowflakeGenerator(config: SnowflakeConfig)
 
 #### Methods
 
-##### `generate(): string`
+##### `generate(): bigint`
 
 Generate a new unique Snowflake ID.
 
 ```typescript
 const id = generator.generate();
-console.log(id); // "1234567890123456789"
+console.log(id); // 1234567890123456789n
 ```
 
-##### `compose(timestamp: number, workerId: number, processId: number, sequence: number): string`
+##### `compose(timestamp: number, workerId: number, processId: number, sequence: number): bigint`
 
 Create an ID from individual components.
 
@@ -102,12 +102,12 @@ const id = generator.compose(
 );
 ```
 
-##### `decompose(id: string): SnowflakeComponents`
+##### `decompose(id: bigint): SnowflakeComponents`
 
 Extract components from an existing ID.
 
 ```typescript
-const components = generator.decompose("1234567890123456789");
+const components = generator.decompose(1234567890123456789n);
 console.log(components);
 // {
 //   timestamp: 1640995200000,
@@ -286,7 +286,7 @@ const generator = new SnowflakeGenerator({
 ### 2. Handle Errors Gracefully
 
 ```typescript
-function generateId(generator: SnowflakeGenerator): string {
+function generateId(generator: SnowflakeGenerator): bigint {
   try {
     return generator.generate();
   } catch (error) {

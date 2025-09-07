@@ -10,7 +10,7 @@
  *
  * const generator = new SnowflakeGenerator({ workerId: 1 });
  * const id = generator.generate();
- * console.log(id); // "1234567890123456789"
+ * console.log(id); // 1234567890123456789n
  *
  * // Decompose ID back to components
  * const components = generator.decompose(id);

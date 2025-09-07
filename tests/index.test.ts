@@ -159,15 +159,15 @@ describe("SnowflakeGenerator", () => {
 			}
 		});
 
-		test("should generate IDs as strings", () => {
+		test("should generate IDs as bigints", () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const id = generator.generate();
-			expect(typeof id).toBe("string");
+			expect(typeof id).toBe("bigint");
 		});
 
 		test("should generate sortable IDs", async () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
-			const ids: string[] = [];
+			const ids: bigint[] = [];
 
 			for (let i = 0; i < 100; i++) {
 				ids.push(generator.generate());
@@ -177,7 +177,9 @@ describe("SnowflakeGenerator", () => {
 				}
 			}
 
-			const sorted = [...ids].sort();
+			const sorted = [...ids].sort((a, b) =>
+				a < b ? -1 : a > b ? 1 : 0,
+			);
 			expect(ids).toEqual(sorted);
 		});
 
@@ -204,7 +206,7 @@ describe("SnowflakeGenerator", () => {
 			});
 
 			const startTime = Date.now();
-			const ids: string[] = [];
+			const ids: bigint[] = [];
 
 			// Generate more IDs than sequence allows in same millisecond
 			for (let i = 0; i < 10; i++) {
@@ -222,8 +224,8 @@ describe("SnowflakeGenerator", () => {
 			const timestamp = Date.now();
 			const id = generator.compose(timestamp, 1, 0, 42);
 
-			expect(typeof id).toBe("string");
-			expect(id.length).toBeGreaterThan(0);
+			expect(typeof id).toBe("bigint");
+			expect(id).toBeGreaterThan(0n);
 		});
 
 		test("should validate component ranges", () => {
@@ -307,15 +309,16 @@ describe("SnowflakeGenerator", () => {
 		test("should reject invalid ID formats", () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 
-			expect(() => generator.decompose("")).toThrow(InvalidIdError);
-			expect(() => generator.decompose("abc")).toThrow(InvalidIdError);
-			expect(() => generator.decompose("-123")).toThrow(InvalidIdError);
+			expect(() => generator.decompose(-123n)).toThrow(InvalidIdError);
 		});
 
-		test("should reject non-string input", () => {
+		test("should reject non-bigint input", () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 
 			expect(() => generator.decompose(123 as any)).toThrow(
+				InvalidIdError,
+			);
+			expect(() => generator.decompose("123" as any)).toThrow(
 				InvalidIdError,
 			);
 			expect(() => generator.decompose(null as any)).toThrow(
@@ -421,7 +424,7 @@ describe("SnowflakeGenerator", () => {
 
 			expect(generator).toBeInstanceOf(SnowflakeGenerator);
 			const id = generator.generate();
-			expect(typeof id).toBe("string");
+			expect(typeof id).toBe("bigint");
 		});
 	});
 });
