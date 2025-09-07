@@ -6,7 +6,7 @@
  *
  * @example
  * ```typescript
- * import { SnowflakeGenerator } from 'snowflake-id-generator';
+ * import { SnowflakeGenerator } from '@pokedotdev/snowflake';
  *
  * const generator = new SnowflakeGenerator({ workerId: 1 });
  * const id = generator.generate();
