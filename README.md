@@ -382,7 +382,7 @@ npm run typecheck
 
 ## License
 
-MIT
+[MIT](LICENSE)
 
 ## Contributing
 
