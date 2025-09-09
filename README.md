@@ -1,15 +1,14 @@
 # Snowflake ID Generator
 
-A high-performance TypeScript library for generating unique, sortable 64-bit IDs inspired by [Twitter's Snowflake algorithm](https://en.wikipedia.org/wiki/Snowflake_ID) and [Discord's ID system](https://discord.com/developers/docs/reference#snowflakes).
+A lightweight and fast TypeScript library for generating unique, sortable 64-bit IDs inspired by [Twitter's Snowflake algorithm](https://en.wikipedia.org/wiki/Snowflake_ID) and [Discord's ID system](https://discord.com/developers/docs/reference#snowflakes).
 
 ## Features
 
-- 🚀 **High Performance**: Generate 1.8M+ IDs per second
 - ⚡ **Zero Dependencies**: Lightweight and fast
 - 🔒 **Sequence Safe**: Handle rapid generation with sequence overflow protection
-- 🎯 **TypeScript First**: Full type safety with comprehensive interfaces
-- 📦 **Configurable**: Customize bit allocations for your use case
+- ⚙️ **Configurable**: Customize bit allocations for your use case
 - 🛡️ **Error Handling**: Comprehensive error classes with descriptive messages
+- 🎯 **TypeScript First**: Full type safety with comprehensive interfaces
 
 ## Installation
 

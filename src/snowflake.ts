@@ -12,7 +12,7 @@ import {
 } from "./errors";
 
 /**
- * High-performance Snowflake ID generator
+ * Snowflake ID generator
  *
  * Generates unique 64-bit IDs consisting of:
  * - 1 bit: unused (always 0)

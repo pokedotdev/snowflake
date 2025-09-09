@@ -1,7 +1,7 @@
 /**
- * TypeScript Snowflake ID Generator
+ * Snowflake ID Generator
  *
- * A high-performance library for generating unique, sortable 64-bit IDs
+ * A lightweight library for generating unique, sortable 64-bit IDs
  * based on Twitter's Snowflake algorithm.
  *
  * @example
