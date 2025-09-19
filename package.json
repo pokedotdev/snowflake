@@ -23,6 +23,23 @@
 		".": "./dist/index.js",
 		"./package.json": "./package.json"
 	},
+	"keywords": [
+		"id",
+		"snowflake",
+		"snowflake-id",
+		"typescript",
+		"unique",
+		"identifier",
+		"distributed",
+		"bigint",
+		"sortable",
+		"twitter",
+		"discord",
+		"algorithm",
+		"generator",
+		"sequence",
+		"timestamp"
+	],
 	"publishConfig": {
 		"access": "public"
 	},
