@@ -18,25 +18,7 @@ export class ConfigurationError extends SnowflakeError {
 	}
 }
 
-/**
- * Error thrown when the clock goes backwards
- */
-export class ClockBackwardsError extends SnowflakeError {
-	constructor(message: string) {
-		super(message);
-		this.name = 'ClockBackwardsError';
-	}
-}
 
-/**
- * Error thrown when maximum timestamp is reached
- */
-export class TimestampExhaustedError extends SnowflakeError {
-	constructor(message: string) {
-		super(message);
-		this.name = 'TimestampExhaustedError';
-	}
-}
 
 /**
  * Error thrown when trying to decompose an invalid ID

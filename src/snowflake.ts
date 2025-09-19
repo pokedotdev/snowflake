@@ -1,8 +1,6 @@
 import {
-	ClockBackwardsError,
 	ConfigurationError,
 	InvalidIdError,
-	TimestampExhaustedError,
 } from './errors';
 import type {
 	BitAllocation,
@@ -143,8 +141,6 @@ export class SnowflakeGenerator {
 	 * Generate a new unique Snowflake ID
 	 *
 	 * @returns A unique ID as a bigint
-	 * @throws {ClockBackwardsError} When system clock goes backwards
-	 * @throws {TimestampExhaustedError} When maximum timestamp is reached
 	 *
 	 * @example
 	 * ```typescript
@@ -157,17 +153,15 @@ export class SnowflakeGenerator {
 
 		// Handle clock going backwards
 		if (timestamp < this.lastTimestamp) {
-			throw new ClockBackwardsError(
-				`Clock moved backwards. Refusing to generate id for ${this.lastTimestamp - timestamp}ms`,
-			);
+			timestamp = this.lastTimestamp;
 		}
 
 		// Handle same millisecond
 		if (timestamp === this.lastTimestamp) {
-			this.sequence = (this.sequence + 1) & this.maxSequence;
+			this.sequence += 1;
 
 			// Sequence overflow - wait for next millisecond
-			if (this.sequence === 0) {
+			if (this.sequence > this.maxSequence) {
 				timestamp = this.waitForNextMillisecond(timestamp);
 			}
 		} else {
@@ -175,11 +169,6 @@ export class SnowflakeGenerator {
 		}
 
 		this.lastTimestamp = timestamp;
-
-		// Check if timestamp exceeds maximum
-		if (timestamp > this.maxTimestamp) {
-			throw new TimestampExhaustedError('Maximum timestamp exceeded');
-		}
 
 		return this.composeId(timestamp, this.config.workerId, this.config.processId, this.sequence);
 	}

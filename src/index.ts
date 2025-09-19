@@ -25,11 +25,9 @@
  */
 
 export {
-	ClockBackwardsError,
 	ConfigurationError,
 	InvalidIdError,
 	SnowflakeError,
-	TimestampExhaustedError,
 } from './errors';
 export { SnowflakeGenerator } from './snowflake';
 export type {

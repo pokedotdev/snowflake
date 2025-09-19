@@ -7,7 +7,7 @@ A lightweight and fast TypeScript library for generating unique, sortable 64-bit
 - ⚡ **Zero Dependencies**: Lightweight and fast
 - 🔒 **Sequence Safe**: Handle rapid generation with sequence overflow protection
 - ⚙️ **Configurable**: Customize bit allocations for your use case
-- 🛡️ **Error Handling**: Comprehensive error classes with descriptive messages
+- 🛡️ **Graceful Error Handling**: Handles clock drift and sequence overflow cases without throwing errors
 - 🎯 **TypeScript First**: Full type safety with comprehensive interfaces
 
 ## Installation
@@ -163,8 +163,6 @@ The library provides specific error classes for different failure scenarios:
 import {
   SnowflakeGenerator,
   ConfigurationError,
-  ClockBackwardsError,
-  TimestampExhaustedError,
   InvalidIdError
 } from '@pokedotdev/snowflake';
 
@@ -184,77 +182,7 @@ try {
 ### Error Types
 
 - **`ConfigurationError`**: Invalid configuration parameters
-- **`ClockBackwardsError`**: System clock moved backwards
-- **`TimestampExhaustedError`**: Maximum timestamp reached (year 2089+)
 - **`InvalidIdError`**: Invalid ID format during decomposition
-
-## Use Cases
-
-### Distributed Systems
-
-```typescript
-// Different workers in a distributed system
-const worker1 = new SnowflakeGenerator({ workerId: 1 });
-const worker2 = new SnowflakeGenerator({ workerId: 2 });
-
-// Each generates unique IDs independently
-const id1 = worker1.generate();
-const id2 = worker2.generate();
-// Guaranteed to be different
-```
-
-### Microservices
-
-```typescript
-// Service-specific configuration
-const userService = new SnowflakeGenerator({
-  workerId: 1,
-  processId: 1,
-  bits: {
-    workerId: 8,     // 256 workers max
-    processId: 4,    // 16 processes max
-    sequence: 10,    // 1024 IDs/ms
-  }
-});
-
-const orderService = new SnowflakeGenerator({
-  workerId: 2,
-  processId: 1,
-  bits: {
-    workerId: 8,
-    processId: 4,
-    sequence: 10,
-  }
-});
-```
-
-### High-Frequency Applications
-
-```typescript
-// Optimized for high throughput
-const generator = new SnowflakeGenerator({
-  workerId: 1,
-  bits: {
-    workerId: 8,     // 256 workers max
-    processId: 0,    // No process distinction
-    sequence: 14,    // 16,384 IDs per millisecond
-  }
-});
-
-// Can handle burst generation
-const ids = Array.from({ length: 10000 }, () => generator.generate());
-console.log(new Set(ids).size === 10000); // true - all unique
-```
-
-## Performance
-
-Benchmarked on modern hardware:
-
-- **Generation**: 1.8M+ IDs/second
-- **Composition**: 1.5M+ operations/second
-- **Decomposition**: 800K+ operations/second
-- **Memory**: Minimal allocation during generation
-- **Uniqueness**: 100% unique across 50,000+ concurrent generations
 
 ## Best Practices
 
@@ -265,9 +193,9 @@ Benchmarked on modern hardware:
 const generator = new SnowflakeGenerator({
   workerId: 1,
   bits: {
-    workerId: 6,     // 64 workers max
+    workerId: 8,     // 256 workers max
     processId: 0,    // No process distinction
-    sequence: 16,    // 65,536 IDs/ms
+    sequence: 14,    // 65,536 IDs/ms
   }
 });
 
@@ -275,30 +203,14 @@ const generator = new SnowflakeGenerator({
 const generator = new SnowflakeGenerator({
   workerId: 1,
   bits: {
-    workerId: 12,    // 4,096 workers max
+    workerId: 10,    // 1,024 workers max
     processId: 0,    // No process distinction
-    sequence: 10,    // 1,024 IDs/ms
+    sequence: 12,    // 4,096 IDs/ms
   }
 });
 ```
 
-### 2. Handle Errors Gracefully
-
-```typescript
-function generateId(generator: SnowflakeGenerator): bigint {
-  try {
-    return generator.generate();
-  } catch (error) {
-    if (error instanceof ClockBackwardsError) {
-      // Wait and retry
-      setTimeout(() => generateId(generator), 1);
-    }
-    throw error;
-  }
-}
-```
-
-### 3. Use Consistent Epochs
+### 2. Use Consistent Epochs
 
 ```typescript
 // Use the same epoch across all services
@@ -377,6 +289,11 @@ pnpm run build
 Type checking:
 ```bash
 pnpm run typecheck
+```
+
+Format code:
+```bash
+pnpm run format
 ```
 
 ## License

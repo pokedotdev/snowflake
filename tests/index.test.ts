@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-	ClockBackwardsError,
 	ConfigurationError,
 	InvalidIdError,
 	type SnowflakeConfig,
 	SnowflakeGenerator,
-	TimestampExhaustedError,
 } from '../src/index';
 
 describe('SnowflakeGenerator', () => {
@@ -309,17 +307,19 @@ describe('SnowflakeGenerator', () => {
 	});
 
 	describe('Error Handling', () => {
-		test('should throw ClockBackwardsError when clock goes backwards', () => {
+		test('should handle clock going backwards gracefully', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 
 			// Generate an ID to set lastTimestamp
-			generator.generate();
+			const id1 = generator.generate();
 
 			// Mock Date.now to return earlier time
 			const originalDateNow = Date.now;
 			Date.now = vi.fn(() => originalDateNow() - 10000);
 
-			expect(() => generator.generate()).toThrow(ClockBackwardsError);
+			// Should not throw, but use last timestamp
+			const id2 = generator.generate();
+			expect(typeof id2).toBe('bigint');
 
 			// Restore original Date.now
 			Date.now = originalDateNow;
