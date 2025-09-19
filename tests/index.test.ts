@@ -1,21 +1,21 @@
-import { expect, test, describe, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-	SnowflakeGenerator,
-	ConfigurationError,
 	ClockBackwardsError,
-	TimestampExhaustedError,
+	ConfigurationError,
 	InvalidIdError,
 	type SnowflakeConfig,
-} from "../src/index";
+	SnowflakeGenerator,
+	TimestampExhaustedError,
+} from '../src/index';
 
-describe("SnowflakeGenerator", () => {
-	describe("Configuration", () => {
-		test("should create generator with minimal config", () => {
+describe('SnowflakeGenerator', () => {
+	describe('Configuration', () => {
+		test('should create generator with minimal config', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			expect(generator).toBeInstanceOf(SnowflakeGenerator);
 		});
 
-		test("should use default epoch (2020-01-01)", () => {
+		test('should use default epoch (2020-01-01)', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const id = generator.generate();
 			const components = generator.decompose(id);
@@ -23,7 +23,7 @@ describe("SnowflakeGenerator", () => {
 			expect(components.timestamp).toBeGreaterThan(1577836800000);
 		});
 
-		test("should use custom epoch", () => {
+		test('should use custom epoch', () => {
 			const customEpoch = 1640995200000; // 2022-01-01
 			const generator = new SnowflakeGenerator({
 				workerId: 1,
@@ -34,12 +34,12 @@ describe("SnowflakeGenerator", () => {
 			expect(components.timestamp).toBeGreaterThan(customEpoch);
 		});
 
-		test("should use default bit allocations", () => {
+		test('should use default bit allocations', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1023 }); // Max for 10 bits
 			expect(generator).toBeInstanceOf(SnowflakeGenerator);
 		});
 
-		test("should use custom bit allocations", () => {
+		test('should use custom bit allocations', () => {
 			const generator = new SnowflakeGenerator({
 				workerId: 1,
 				bits: {
@@ -65,7 +65,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should validate worker ID within range", () => {
+		test('should validate worker ID within range', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -74,7 +74,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should validate process ID within range", () => {
+		test('should validate process ID within range', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -89,7 +89,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should reject negative worker ID", () => {
+		test('should reject negative worker ID', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -98,7 +98,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should reject negative process ID", () => {
+		test('should reject negative process ID', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -108,7 +108,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should reject epoch in the future", () => {
+		test('should reject epoch in the future', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -118,7 +118,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should reject negative bit allocations", () => {
+		test('should reject negative bit allocations', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -132,7 +132,7 @@ describe("SnowflakeGenerator", () => {
 			).toThrow(ConfigurationError);
 		});
 
-		test("should reject all zero bit allocations", () => {
+		test('should reject all zero bit allocations', () => {
 			expect(
 				() =>
 					new SnowflakeGenerator({
@@ -147,8 +147,8 @@ describe("SnowflakeGenerator", () => {
 		});
 	});
 
-	describe("ID Generation", () => {
-		test("should generate unique IDs", () => {
+	describe('ID Generation', () => {
+		test('should generate unique IDs', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const ids = new Set();
 
@@ -159,13 +159,13 @@ describe("SnowflakeGenerator", () => {
 			}
 		});
 
-		test("should generate IDs as bigints", () => {
+		test('should generate IDs as bigints', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const id = generator.generate();
-			expect(typeof id).toBe("bigint");
+			expect(typeof id).toBe('bigint');
 		});
 
-		test("should generate sortable IDs", async () => {
+		test('should generate sortable IDs', async () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const ids: bigint[] = [];
 
@@ -177,13 +177,11 @@ describe("SnowflakeGenerator", () => {
 				}
 			}
 
-			const sorted = [...ids].sort((a, b) =>
-				a < b ? -1 : a > b ? 1 : 0,
-			);
+			const sorted = [...ids].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 			expect(ids).toEqual(sorted);
 		});
 
-		test("should handle high-frequency generation", () => {
+		test('should handle high-frequency generation', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const ids = new Set();
 
@@ -195,7 +193,7 @@ describe("SnowflakeGenerator", () => {
 			expect(ids.size).toBe(5000);
 		});
 
-		test("should handle sequence overflow by waiting", async () => {
+		test('should handle sequence overflow by waiting', async () => {
 			const generator = new SnowflakeGenerator({
 				workerId: 1,
 				bits: {
@@ -218,47 +216,35 @@ describe("SnowflakeGenerator", () => {
 		});
 	});
 
-	describe("Compose Method", () => {
-		test("should compose ID from components", () => {
+	describe('Compose Method', () => {
+		test('should compose ID from components', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const timestamp = Date.now();
 			const id = generator.compose(timestamp, 1, 0, 42);
 
-			expect(typeof id).toBe("bigint");
+			expect(typeof id).toBe('bigint');
 			expect(id).toBeGreaterThan(0n);
 		});
 
-		test("should validate component ranges", () => {
+		test('should validate component ranges', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 			const timestamp = Date.now();
 
-			expect(() => generator.compose(timestamp, -1, 0, 0)).toThrow(
-				ConfigurationError,
-			);
-			expect(() => generator.compose(timestamp, 1024, 0, 0)).toThrow(
-				ConfigurationError,
-			);
-			expect(() => generator.compose(timestamp, 0, -1, 0)).toThrow(
-				ConfigurationError,
-			);
-			expect(() => generator.compose(timestamp, 0, 0, -1)).toThrow(
-				ConfigurationError,
-			);
-			expect(() => generator.compose(timestamp, 0, 0, 4096)).toThrow(
-				ConfigurationError,
-			);
+			expect(() => generator.compose(timestamp, -1, 0, 0)).toThrow(ConfigurationError);
+			expect(() => generator.compose(timestamp, 1024, 0, 0)).toThrow(ConfigurationError);
+			expect(() => generator.compose(timestamp, 0, -1, 0)).toThrow(ConfigurationError);
+			expect(() => generator.compose(timestamp, 0, 0, -1)).toThrow(ConfigurationError);
+			expect(() => generator.compose(timestamp, 0, 0, 4096)).toThrow(ConfigurationError);
 		});
 
-		test("should reject negative timestamp", () => {
+		test('should reject negative timestamp', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
-			expect(() => generator.compose(-1, 1, 0, 0)).toThrow(
-				ConfigurationError,
-			);
+			expect(() => generator.compose(-1, 1, 0, 0)).toThrow(ConfigurationError);
 		});
 	});
 
-	describe("Decompose Method", () => {
-		test("should decompose generated ID correctly", () => {
+	describe('Decompose Method', () => {
+		test('should decompose generated ID correctly', () => {
 			const generator = new SnowflakeGenerator({
 				workerId: 123,
 				processId: 45,
@@ -278,7 +264,7 @@ describe("SnowflakeGenerator", () => {
 			expect(components.sequence).toBeGreaterThanOrEqual(0);
 		});
 
-		test("should round-trip compose/decompose", () => {
+		test('should round-trip compose/decompose', () => {
 			const generator = new SnowflakeGenerator({
 				workerId: 1,
 				bits: {
@@ -306,32 +292,24 @@ describe("SnowflakeGenerator", () => {
 			expect(components.sequence).toBe(originalSequence);
 		});
 
-		test("should reject invalid ID formats", () => {
+		test('should reject invalid ID formats', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 
 			expect(() => generator.decompose(-123n)).toThrow(InvalidIdError);
 		});
 
-		test("should reject non-bigint input", () => {
+		test('should reject non-bigint input', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 
-			expect(() => generator.decompose(123 as any)).toThrow(
-				InvalidIdError,
-			);
-			expect(() => generator.decompose("123" as any)).toThrow(
-				InvalidIdError,
-			);
-			expect(() => generator.decompose(null as any)).toThrow(
-				InvalidIdError,
-			);
-			expect(() => generator.decompose(undefined as any)).toThrow(
-				InvalidIdError,
-			);
+			expect(() => generator.decompose(123 as any)).toThrow(InvalidIdError);
+			expect(() => generator.decompose('123' as any)).toThrow(InvalidIdError);
+			expect(() => generator.decompose(null as any)).toThrow(InvalidIdError);
+			expect(() => generator.decompose(undefined as any)).toThrow(InvalidIdError);
 		});
 	});
 
-	describe("Error Handling", () => {
-		test("should throw ClockBackwardsError when clock goes backwards", () => {
+	describe('Error Handling', () => {
+		test('should throw ClockBackwardsError when clock goes backwards', () => {
 			const generator = new SnowflakeGenerator({ workerId: 1 });
 
 			// Generate an ID to set lastTimestamp
@@ -348,8 +326,8 @@ describe("SnowflakeGenerator", () => {
 		});
 	});
 
-	describe("Multiple Instances", () => {
-		test("should generate unique IDs across multiple instances", () => {
+	describe('Multiple Instances', () => {
+		test('should generate unique IDs across multiple instances', () => {
 			const generator1 = new SnowflakeGenerator({ workerId: 1 });
 			const generator2 = new SnowflakeGenerator({ workerId: 2 });
 
@@ -363,7 +341,7 @@ describe("SnowflakeGenerator", () => {
 			expect(ids.size).toBe(2000);
 		});
 
-		test("should work with different process IDs", () => {
+		test('should work with different process IDs', () => {
 			const generator1 = new SnowflakeGenerator({
 				workerId: 1,
 				processId: 1,
@@ -394,8 +372,8 @@ describe("SnowflakeGenerator", () => {
 		});
 	});
 
-	describe("Edge Cases", () => {
-		test("should handle exactly at bit limits", () => {
+	describe('Edge Cases', () => {
+		test('should handle exactly at bit limits', () => {
 			const generator = new SnowflakeGenerator({
 				workerId: 1023, // 2^10 - 1
 				processId: 0,
@@ -412,7 +390,7 @@ describe("SnowflakeGenerator", () => {
 			expect(components.workerId).toBe(1023);
 		});
 
-		test("should handle minimum valid configuration", () => {
+		test('should handle minimum valid configuration', () => {
 			const generator = new SnowflakeGenerator({
 				workerId: 0,
 				bits: {
@@ -424,7 +402,7 @@ describe("SnowflakeGenerator", () => {
 
 			expect(generator).toBeInstanceOf(SnowflakeGenerator);
 			const id = generator.generate();
-			expect(typeof id).toBe("bigint");
+			expect(typeof id).toBe('bigint');
 		});
 	});
 });

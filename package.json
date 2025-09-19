@@ -30,13 +30,13 @@
 		"build": "tsdown",
 		"dev": "tsdown --watch",
 		"test": "vitest",
-		"benchmark": "tsx benchmarks/snowflake.bench.ts",
-		"bench:simple": "tsx benchmarks/simple.bench.ts",
-		"bench:bits": "tsx benchmarks/bit-allocations.bench.ts",
+		"format": "pnpm exec biome check --write",
+		"benchmark": "tsx benchmarks/simple.bench.ts",
 		"typecheck": "tsc --noEmit",
 		"release": "bumpp && npm publish"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.2.4",
 		"@types/node": "^22.15.17",
 		"bumpp": "^10.1.0",
 		"tinybench": "^5.0.1",

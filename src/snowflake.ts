@@ -1,15 +1,15 @@
-import type {
-	SnowflakeConfig,
-	SnowflakeComponents,
-	ResolvedSnowflakeConfig,
-	BitAllocation,
-} from "./types";
 import {
-	ConfigurationError,
 	ClockBackwardsError,
-	TimestampExhaustedError,
+	ConfigurationError,
 	InvalidIdError,
-} from "./errors";
+	TimestampExhaustedError,
+} from './errors';
+import type {
+	BitAllocation,
+	ResolvedSnowflakeConfig,
+	SnowflakeComponents,
+	SnowflakeConfig,
+} from './types';
 
 /**
  * Snowflake ID generator
@@ -61,26 +61,14 @@ export class SnowflakeGenerator {
 		this.validateConfig();
 
 		// Calculate bit shifts and maximum values
-		this.maxSequence =
-			this.config.bits.sequence > 0
-				? (1 << this.config.bits.sequence) - 1
-				: 0;
-		this.maxProcess =
-			this.config.bits.processId > 0
-				? (1 << this.config.bits.processId) - 1
-				: 0;
-		this.maxWorker =
-			this.config.bits.workerId > 0
-				? (1 << this.config.bits.workerId) - 1
-				: 0;
+		this.maxSequence = this.config.bits.sequence > 0 ? (1 << this.config.bits.sequence) - 1 : 0;
+		this.maxProcess = this.config.bits.processId > 0 ? (1 << this.config.bits.processId) - 1 : 0;
+		this.maxWorker = this.config.bits.workerId > 0 ? (1 << this.config.bits.workerId) - 1 : 0;
 
 		this.workerShift = this.config.bits.sequence;
-		this.processShift =
-			this.config.bits.sequence + this.config.bits.workerId;
+		this.processShift = this.config.bits.sequence + this.config.bits.workerId;
 		this.timestampShift =
-			this.config.bits.sequence +
-			this.config.bits.workerId +
-			this.config.bits.processId;
+			this.config.bits.sequence + this.config.bits.workerId + this.config.bits.processId;
 
 		// Maximum timestamp that can be represented (41 bits)
 		this.maxTimestamp = Number((1n << 41n) - 1n);
@@ -106,24 +94,16 @@ export class SnowflakeGenerator {
 
 		// Check if epoch is in the future
 		if (epoch > Date.now()) {
-			throw new ConfigurationError("Epoch cannot be in the future");
+			throw new ConfigurationError('Epoch cannot be in the future');
 		}
 
 		// Check bit allocations
 		if (bits.workerId < 0 || bits.processId < 0 || bits.sequence < 0) {
-			throw new ConfigurationError(
-				"All bit allocations must be non-negative",
-			);
+			throw new ConfigurationError('All bit allocations must be non-negative');
 		}
 
-		if (
-			bits.workerId === 0 &&
-			bits.processId === 0 &&
-			bits.sequence === 0
-		) {
-			throw new ConfigurationError(
-				"At least one bit allocation must be greater than 0",
-			);
+		if (bits.workerId === 0 && bits.processId === 0 && bits.sequence === 0) {
+			throw new ConfigurationError('At least one bit allocation must be greater than 0');
 		}
 
 		// Check total bits don't exceed available space (22 bits = 64 - 1 sign - 41 timestamp)
@@ -137,10 +117,10 @@ export class SnowflakeGenerator {
 
 		// Check worker and process IDs are within range
 		if (workerId < 0) {
-			throw new ConfigurationError("Worker ID cannot be negative");
+			throw new ConfigurationError('Worker ID cannot be negative');
 		}
 		if (processId < 0) {
-			throw new ConfigurationError("Process ID cannot be negative");
+			throw new ConfigurationError('Process ID cannot be negative');
 		}
 
 		const maxWorker = bits.workerId > 0 ? (1 << bits.workerId) - 1 : 0;
@@ -198,15 +178,10 @@ export class SnowflakeGenerator {
 
 		// Check if timestamp exceeds maximum
 		if (timestamp > this.maxTimestamp) {
-			throw new TimestampExhaustedError("Maximum timestamp exceeded");
+			throw new TimestampExhaustedError('Maximum timestamp exceeded');
 		}
 
-		return this.composeId(
-			timestamp,
-			this.config.workerId,
-			this.config.processId,
-			this.sequence,
-		);
+		return this.composeId(timestamp, this.config.workerId, this.config.processId, this.sequence);
 	}
 
 	/**
@@ -225,35 +200,24 @@ export class SnowflakeGenerator {
 	 * console.log(id); // 1234567890123456789n
 	 * ```
 	 */
-	compose(
-		timestamp: number,
-		workerId: number,
-		processId: number,
-		sequence: number,
-	): bigint {
+	compose(timestamp: number, workerId: number, processId: number, sequence: number): bigint {
 		// Validate inputs
 		if (timestamp < 0) {
-			throw new ConfigurationError("Timestamp cannot be negative");
+			throw new ConfigurationError('Timestamp cannot be negative');
 		}
 		if (workerId < 0 || workerId > this.maxWorker) {
-			throw new ConfigurationError(
-				`Worker ID must be between 0 and ${this.maxWorker}`,
-			);
+			throw new ConfigurationError(`Worker ID must be between 0 and ${this.maxWorker}`);
 		}
 		if (processId < 0 || processId > this.maxProcess) {
-			throw new ConfigurationError(
-				`Process ID must be between 0 and ${this.maxProcess}`,
-			);
+			throw new ConfigurationError(`Process ID must be between 0 and ${this.maxProcess}`);
 		}
 		if (sequence < 0 || sequence > this.maxSequence) {
-			throw new ConfigurationError(
-				`Sequence must be between 0 and ${this.maxSequence}`,
-			);
+			throw new ConfigurationError(`Sequence must be between 0 and ${this.maxSequence}`);
 		}
 
 		const adjustedTimestamp = timestamp - this.config.epoch;
 		if (adjustedTimestamp > this.maxTimestamp) {
-			throw new ConfigurationError("Timestamp exceeds maximum value");
+			throw new ConfigurationError('Timestamp exceeds maximum value');
 		}
 
 		return this.composeId(adjustedTimestamp, workerId, processId, sequence);
@@ -280,22 +244,18 @@ export class SnowflakeGenerator {
 	 */
 	decompose(id: bigint): SnowflakeComponents {
 		// Validate input
-		if (typeof id !== "bigint") {
-			throw new InvalidIdError("ID must be a bigint");
+		if (typeof id !== 'bigint') {
+			throw new InvalidIdError('ID must be a bigint');
 		}
 
 		if (id < 0n) {
-			throw new InvalidIdError("ID cannot be negative");
+			throw new InvalidIdError('ID cannot be negative');
 		}
 
 		// Extract components using bit operations
 		const sequence = Number(id & BigInt(this.maxSequence));
-		const workerId = Number(
-			(id >> BigInt(this.workerShift)) & BigInt(this.maxWorker),
-		);
-		const processId = Number(
-			(id >> BigInt(this.processShift)) & BigInt(this.maxProcess),
-		);
+		const workerId = Number((id >> BigInt(this.workerShift)) & BigInt(this.maxWorker));
+		const processId = Number((id >> BigInt(this.processShift)) & BigInt(this.maxProcess));
 		const adjustedTimestamp = Number(id >> BigInt(this.timestampShift));
 
 		return {

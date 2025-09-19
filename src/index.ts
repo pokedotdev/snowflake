@@ -24,16 +24,16 @@
  * ```
  */
 
-export { SnowflakeGenerator } from "./snowflake";
-export type {
-	SnowflakeConfig,
-	SnowflakeComponents,
-	BitAllocation,
-} from "./types";
 export {
-	SnowflakeError,
-	ConfigurationError,
 	ClockBackwardsError,
-	TimestampExhaustedError,
+	ConfigurationError,
 	InvalidIdError,
-} from "./errors";
+	SnowflakeError,
+	TimestampExhaustedError,
+} from './errors';
+export { SnowflakeGenerator } from './snowflake';
+export type {
+	BitAllocation,
+	SnowflakeComponents,
+	SnowflakeConfig,
+} from './types';
