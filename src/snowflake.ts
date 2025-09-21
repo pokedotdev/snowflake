@@ -1,7 +1,4 @@
-import {
-	ConfigurationError,
-	InvalidIdError,
-} from './errors';
+import { ConfigurationError, InvalidIdError } from './errors';
 import type {
 	BitAllocation,
 	ResolvedSnowflakeConfig,
@@ -158,10 +155,10 @@ export class SnowflakeGenerator {
 
 		// Handle same millisecond
 		if (timestamp === this.lastTimestamp) {
-			this.sequence += 1;
+			this.sequence = (this.sequence + 1) % this.maxSequence;
 
 			// Sequence overflow - wait for next millisecond
-			if (this.sequence > this.maxSequence) {
+			if (this.sequence === 0) {
 				timestamp = this.waitForNextMillisecond(timestamp);
 			}
 		} else {

@@ -212,6 +212,34 @@ describe('SnowflakeGenerator', () => {
 			expect(new Set(ids).size).toBe(10);
 			expect(Date.now() - startTime).toBeGreaterThanOrEqual(0);
 		});
+
+		test('should reset sequence to 0 after overflow', () => {
+			const generator = new SnowflakeGenerator({
+				workerId: 1,
+				bits: {
+					workerId: 10,
+					processId: 0,
+					sequence: 2, // Max sequence = 3 (0, 1, 2, 3)
+				},
+			});
+
+			const ids: bigint[] = [];
+
+			// Generate enough IDs to trigger sequence overflow
+			for (let i = 0; i < 8; i++) {
+				ids.push(generator.generate());
+			}
+
+			// Decompose all IDs and check sequence values are valid
+			for (const id of ids) {
+				const components = generator.decompose(id);
+				expect(components.sequence).toBeGreaterThanOrEqual(0);
+				expect(components.sequence).toBeLessThanOrEqual(3); // Max for 2 bits
+			}
+
+			// Ensure all IDs are unique
+			expect(new Set(ids).size).toBe(8);
+		});
 	});
 
 	describe('Compose Method', () => {
