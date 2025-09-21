@@ -1,6 +1,6 @@
 {
 	"name": "@pokedotdev/snowflake",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "High-performance TypeScript library for generating unique, sortable Snowflake IDs",
 	"type": "module",
 	"license": "MIT",
