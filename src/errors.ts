@@ -18,8 +18,6 @@ export class ConfigurationError extends SnowflakeError {
 	}
 }
 
-
-
 /**
  * Error thrown when trying to decompose an invalid ID
  */
