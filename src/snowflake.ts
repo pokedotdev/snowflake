@@ -155,7 +155,7 @@ export class SnowflakeGenerator {
 
 		// Handle same millisecond
 		if (timestamp === this.lastTimestamp) {
-			this.sequence = (this.sequence + 1) % this.maxSequence;
+			this.sequence = (this.sequence + 1) & this.maxSequence;
 
 			// Sequence overflow - wait for next millisecond
 			if (this.sequence === 0) {
